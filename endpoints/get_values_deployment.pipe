@@ -15,3 +15,10 @@ SQL >
     )
 
 
+
+NODE get_values_deployment_1
+SQL >
+
+    SELECT count() FROM endpoint_get_values_deployment
+
+

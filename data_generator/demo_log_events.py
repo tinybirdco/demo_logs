@@ -1,3 +1,4 @@
+from re import I
 import string
 import faker
 import requests
@@ -28,11 +29,15 @@ def send_event(ds: str, token: str, messages: list):
 @click.option('--events', help = 'number of events per request. Sent as NDJSON in the body', type=int, default=87)
 @click.option('--repeat', type=int, default=1)
 @click.option('--silent', is_flag=True, default=False)
+@click.option('--d_from', help = 'used along d_to to simulate data from the past. d_from lets you select the number of days previous to today for starting the simulation', type=int, default=0)
+@click.option('--d_to', help = 'used along d_from to simulate data from the past. d_to lets you select the number of days previous to today for ending the simulation', type=int, default=0)
 def send_hfi(datasource,
              sample,
              events,
              repeat,
-             silent
+             silent,
+             d_from,
+             d_to
              ):
  
   with open ("./.tinyb") as tinyb:
@@ -40,10 +45,12 @@ def send_hfi(datasource,
    
   id_event = random.randint(0, 1000000000)
   build_id = random.randint(0, 1000000000)
+  
   for _ in range(repeat):
+
     projectId = 'prj_' + ''.join(random.choices(string.ascii_letters + string.digits, k = 30))
     deploymentId = 'dpl_' + ''.join(random.choices(string.ascii_letters + string.digits, k = 30))
-    logLevel = random.choices(['Warning','Debug','Error'],k=events)
+    logLevel = random.choices(['WARNING','DEBUG','ERROR'],k=events)
     entrypoint = random.choices(['package.json','downloading','python','docker'],k=events)
     http_method = random.choices(['GET','POST','PUT','DELETE','HEAD','OPTIONS'],k=events)
     region = random.choices(['US','EU'],k=events)
@@ -56,6 +63,7 @@ def send_hfi(datasource,
     referer = random.choices(['tinybird.','speedwins','log_company'],k=events)
     scheme = random.choices(['http','https'],k=events)
     status_code = random.choices([200,400,403,500],k=events)
+    destination = random.choices(['http','https'],k=events)
   
     nd = []
     
@@ -69,50 +77,53 @@ def send_hfi(datasource,
         initDuration = random.randint(5, 500)
         memoryUsed = random.randint(5, 10000)
 
+        if (d_from != 0):
+            delta_days=random.randint(d_to,d_from)
+            delta_seconds=random.randint(1,3600*24)
+
         message = {
-        'timestamp': datetime.utcnow().isoformat(),
+        'timestamp': (datetime.utcnow() - timedelta(days=delta_days, seconds=delta_seconds)).isoformat() if (d_from != 0) else datetime.utcnow().isoformat(),
         'projectId':  projectId,
         'id': str(id_event),
         'deploymentId': deploymentId,
-        'message': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua',
-        'ownerId': str(id_event)
+        'message': (f"{logLevel[i%events]} RequestId: {requestId} Version: LATEST\n Init Duration: {initDuration} ms Duration: {duration} ms Memory Used: {memoryUsed} MB"),
+        'logLevel': logLevel[i%events]
         }
         if(datasource == 'build_log'):
             message.update(
             {'buildId': str(build_id),
             'deploymentId': deploymentId,
-            'entrypoint': entrypoint[id_event%events],
-            'logLevel': logLevel[id_event%events]})
+            'entrypoint': entrypoint[i%events]
+            })
         if(datasource == 'lambda_log' or datasource == 'rewrite_log'):
             message.update(
             { 'requestId': requestId,
-            'requestPath': request_path[id_event%events],
-            'functionPath': request_path[id_event%events],
-            'region': region[id_event%events],
+            'requestPath': request_path[i%events],
+            'region': region[i%events],
             'cacheId': cacheId,
-            'scheme': scheme[id_event%events],
-            'httpMethod': http_method[id_event%events],
-            'functionStatusCode': status_code[id_event%events],
-            'edgeStatusCode': status_code[id_event%events],
-            'userAgent': userAgent[id_event%events],
+            'scheme': scheme[i%events],
+            'httpMethod': http_method[i%events],
+            'edgeStatusCode': status_code[i%events],
+            'userAgent': userAgent[i%events],
             'duration': duration,
             'initDuration': initDuration,
             'memoryUsed': memoryUsed,
             'clientIp': clientIp,
-            'referer': (f"https://{referer[id_event%events]}.vercel.app/")
+            'referer': (f"https://{referer[i%events]}.vercel.app/")
             })
             if(datasource == 'rewrite_log'):
-                message.update({ 'destination': 'destination'})
+                message.update({ 'destination': destination[i%events]})
 
         nd.append(message) 
         if len(nd) == events:
             send_event(datasource, token, nd)
-            projectId = 'prj_' + ''.join(random.choices(string.ascii_letters + string.digits, k = 30))
             nd = []
         if not(silent):
             print(message) 
-        if len(nd) % (events /10) == 0:
+        if ((i % (sample /20)) == 0):
             deploymentId = 'dpl_' + ''.join((random.choice(string.ascii_letters) for x in range(30)))
+        if ((i % (sample /10)) == 0):
+            projectId = 'prj_' + ''.join(random.choices(string.ascii_letters + string.digits, k = 30))
     send_event(datasource, token, nd)
     nd = []
 

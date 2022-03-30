@@ -15,3 +15,10 @@ SQL >
     )
 
 
+
+NODE get_values_project_1
+SQL >
+
+    SELECT count() FROM endpoint_get_values_project
+
+

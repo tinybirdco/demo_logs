@@ -5,11 +5,10 @@ SCHEMA >
     `projectId` String `json:$.projectId`,
     `deploymentId` String `json:$.deploymentId`,
     `timestamp` DateTime `json:$.timestamp`,
-    `entrypoint` String `json:$.entrypoint`,
     `logLevel` String `json:$.logLevel`,
-    `message` String `json:$.message`,
-    `ownerId` String `json:$.ownerId`
+    `entrypoint` String `json:$.entrypoint`,
+    `message` String `json:$.message`
 
 ENGINE "MergeTree"
-ENGINE_PARTITION_KEY "toYYYYMM(timestamp)"
-ENGINE_SORTING_KEY "projectId, deploymentId, timestamp"
+ENGINE_PARTITION_KEY "toYYYYMMDD(timestamp)"
+ENGINE_SORTING_KEY "projectId, deploymentId, timestamp, logLevel"

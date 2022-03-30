@@ -2,18 +2,21 @@ NODE node_query_build_logs
 SQL >
 
     %
-    SELECT timestamp,message 
-      FROM build_log
-    WHERE 1
-            {% if defined(date_start) and defined(date_end) %}
-                AND toDate(timestamp) BETWEEN toDate({{Date(date_start)}}) and toDate({{Date(date_end)}})
-            {% end %}
-            {% if defined(project) or defined(deployment) %}
-                AND {{sql_and(
-                projectId__in=Array(project, 'String', defined=False),
-                deploymentId__in=Array(deployment, 'String', defined=False)
-                )}}  
-            {% end %}
+        SELECT timestamp,message 
+          FROM build_log
+        WHERE 1
+                {% if defined(date_start) and defined(date_end) %}
+                    AND toDate(timestamp) BETWEEN toDate({{Date(date_start)}}) and toDate({{Date(date_end)}})
+                {% end %}
+                {% if defined(project) or defined(deployment) %}
+                    AND {{sql_and(
+                    projectId__in=Array(project, 'String', defined=False),
+                    deploymentId__in=Array(deployment, 'String', defined=False)
+                    )}}  
+                {% end %}
+                            {%if defined(text_search)%}
+    AND message like concat('%',{{String(text_search, description="text of the message")}},'%')
+    {%end%}
 
 
 
@@ -21,18 +24,21 @@ NODE node_query_lambda_logs
 SQL >
 
     %
-    SELECT timestamp,message 
-      FROM lambda_log
-    WHERE 1
-            {% if defined(date_start) and defined(date_end) %}
-                AND toDate(timestamp) BETWEEN toDate({{Date(date_start)}}) and toDate({{Date(date_end)}})
-            {% end %}
-            {% if defined(project) or defined(deployment) %}
-                AND {{sql_and(
-                projectId__in=Array(project, 'String', defined=False),
-                deploymentId__in=Array(deployment, 'String', defined=False)
-                )}}  
-            {% end %} 
+        SELECT timestamp,message 
+          FROM lambda_log
+        WHERE 1
+                {% if defined(date_start) and defined(date_end) %}
+                    AND toDate(timestamp) BETWEEN toDate({{Date(date_start)}}) and toDate({{Date(date_end)}})
+                {% end %}
+                {% if defined(project) or defined(deployment) %}
+                    AND {{sql_and(
+                    projectId__in=Array(project, 'String', defined=False),
+                    deploymentId__in=Array(deployment, 'String', defined=False)
+                    )}}  
+                {% end %}
+                            {%if defined(text_search)%}
+    AND message like concat('%',{{String(text_search, description="text of the message")}},'%')
+    {%end%}
 
 
 
@@ -40,31 +46,45 @@ NODE node_query_rewrite_logs
 SQL >
 
     %
-    SELECT timestamp,message 
-      FROM rewrite_log
-    WHERE 1
-            {% if defined(date_start) and defined(date_end) %}
-                AND toDate(timestamp) BETWEEN toDate({{Date(date_start)}}) and toDate({{Date(date_end)}})
-            {% end %}
-            {% if defined(project) or defined(deployment) %}
-                AND {{sql_and(
-                projectId__in=Array(project, 'String', defined=False),
-                deploymentId__in=Array(deployment, 'String', defined=False)
-                )}}  
-            {% end %} 
+        SELECT timestamp,message 
+          FROM rewrite_log
+        WHERE 1
+                {% if defined(date_start) and defined(date_end) %}
+                    AND toDate(timestamp) BETWEEN toDate({{Date(date_start)}}) and toDate({{Date(date_end)}})
+                {% end %}
+                {% if defined(project) or defined(deployment) %}
+                    AND {{sql_and(
+                    projectId__in=Array(project, 'String', defined=False),
+                    deploymentId__in=Array(deployment, 'String', defined=False)
+                    )}}  
+                {% end %}
+                {%if defined(text_search)%}
+    AND message like concat('%',{{String(text_search, description="text of the message")}},'%')
+    {%end%}
 
 
 
 NODE endpoint_query
 SQL >
 
-    SELECT timestamp,message 
-      FROM node_query_build_logs
-    UNION ALL
+    %
+
     SELECT timestamp,message
-      FROM node_query_lambda_logs
-    UNION ALL
-    SELECT timestamp,message
-      FROM node_query_rewrite_logs
+      FROM
+    (
+      SELECT timestamp,message
+      FROM
+      {% if channel == 'build' %}
+        node_query_build_logs
+      {% elif channel == 'lambda' %}
+        node_query_lambda_logs
+      {% elif channel == 'rewrite' %}
+        node_query_rewrite_logs
+      {% else %}
+        node_query_build_logs  
+      {% end %}
+    )
+    LIMIT {{Int32(page_size, 100)}}
+    OFFSET {{Int32(page, 0) * Int32(page_size, 100)}}
 
 
