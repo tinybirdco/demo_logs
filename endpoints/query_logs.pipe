@@ -1,0 +1,70 @@
+NODE node_query_build_logs
+SQL >
+
+    %
+    SELECT timestamp,message 
+      FROM build_log
+    WHERE 1
+            {% if defined(date_start) and defined(date_end) %}
+                AND toDate(timestamp) BETWEEN toDate({{Date(date_start)}}) and toDate({{Date(date_end)}})
+            {% end %}
+            {% if defined(project) or defined(deployment) %}
+                AND {{sql_and(
+                projectId__in=Array(project, 'String', defined=False),
+                deploymentId__in=Array(deployment, 'String', defined=False)
+                )}}  
+            {% end %}
+
+
+
+NODE node_query_lambda_logs
+SQL >
+
+    %
+    SELECT timestamp,message 
+      FROM lambda_log
+    WHERE 1
+            {% if defined(date_start) and defined(date_end) %}
+                AND toDate(timestamp) BETWEEN toDate({{Date(date_start)}}) and toDate({{Date(date_end)}})
+            {% end %}
+            {% if defined(project) or defined(deployment) %}
+                AND {{sql_and(
+                projectId__in=Array(project, 'String', defined=False),
+                deploymentId__in=Array(deployment, 'String', defined=False)
+                )}}  
+            {% end %} 
+
+
+
+NODE node_query_rewrite_logs
+SQL >
+
+    %
+    SELECT timestamp,message 
+      FROM rewrite_log
+    WHERE 1
+            {% if defined(date_start) and defined(date_end) %}
+                AND toDate(timestamp) BETWEEN toDate({{Date(date_start)}}) and toDate({{Date(date_end)}})
+            {% end %}
+            {% if defined(project) or defined(deployment) %}
+                AND {{sql_and(
+                projectId__in=Array(project, 'String', defined=False),
+                deploymentId__in=Array(deployment, 'String', defined=False)
+                )}}  
+            {% end %} 
+
+
+
+NODE endpoint_query
+SQL >
+
+    SELECT timestamp,message 
+      FROM node_query_build_logs
+    UNION ALL
+    SELECT timestamp,message
+      FROM node_query_lambda_logs
+    UNION ALL
+    SELECT timestamp,message
+      FROM node_query_rewrite_logs
+
+

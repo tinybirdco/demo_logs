@@ -1,0 +1,6 @@
+NODE stats_node
+SQL >
+
+    SELECT count() FROM build_log
+
+

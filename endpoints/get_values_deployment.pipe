@@ -1,0 +1,17 @@
+NODE endpoint_get_values_deployment
+SQL >
+
+    SELECT distinct deploymentId
+    FROM
+    (
+      SELECT distinct deploymentId 
+        FROM build_log
+      UNION ALL
+      SELECT distinct deploymentId
+        FROM lambda_log
+      UNION ALL
+      SELECT distinct deploymentId
+        FROM rewrite_log  
+    )
+
+

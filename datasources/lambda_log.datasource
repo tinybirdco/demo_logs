@@ -1,0 +1,27 @@
+
+SCHEMA >
+    `id` String `json:$.id`,
+    `projectId` String `json:$.projectId`,
+    `deploymentId` String `json:$.deploymentId`,
+    `timestamp` DateTime `json:$.timestamp`,
+    `cacheId` String `json:$.cacheId`,
+    `clientIp` String `json:$.clientIp`,
+    `duration` Int16 `json:$.duration`,
+    `edgeStatusCode` Nullable(Int16) `json:$.edgeStatusCode`,
+    `functionPath` String `json:$.functionPath`,
+    `functionStatusCode` Int16 `json:$.functionStatusCode`,
+    `httpMethod` String `json:$.httpMethod`,
+    `initDuration` Nullable(Int16) `json:$.initDuration`,
+    `memoryUsed` Int16 `json:$.memoryUsed`,
+    `message` String `json:$.message`,
+    `ownerId` String `json:$.ownerId`,
+    `referer` Nullable(String) `json:$.referer`,
+    `region` String `json:$.region`,
+    `requestId` String `json:$.requestId`,
+    `requestPath` String `json:$.requestPath`,
+    `scheme` String `json:$.scheme`,
+    `userAgent` String `json:$.userAgent`
+
+ENGINE "MergeTree"
+ENGINE_PARTITION_KEY "toYYYYMM(timestamp)"
+ENGINE_SORTING_KEY "projectId, deploymentId, timestamp"

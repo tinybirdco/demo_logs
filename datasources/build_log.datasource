@@ -1,0 +1,15 @@
+
+SCHEMA >
+    `id` String `json:$.id`,
+    `buildId` String `json:$.buildId`,
+    `projectId` String `json:$.projectId`,
+    `deploymentId` String `json:$.deploymentId`,
+    `timestamp` DateTime `json:$.timestamp`,
+    `entrypoint` String `json:$.entrypoint`,
+    `logLevel` String `json:$.logLevel`,
+    `message` String `json:$.message`,
+    `ownerId` String `json:$.ownerId`
+
+ENGINE "MergeTree"
+ENGINE_PARTITION_KEY "toYYYYMM(timestamp)"
+ENGINE_SORTING_KEY "projectId, deploymentId, timestamp"

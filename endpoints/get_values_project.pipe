@@ -1,0 +1,17 @@
+NODE endpoint_get_values_project
+SQL >
+
+    SELECT distinct projectId
+    FROM
+    (
+      SELECT distinct projectId 
+        FROM build_log
+      UNION ALL
+      SELECT distinct projectId
+        FROM lambda_log
+      UNION ALL
+      SELECT distinct projectId
+        FROM rewrite_log  
+    )
+
+
