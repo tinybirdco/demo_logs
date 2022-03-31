@@ -109,6 +109,7 @@ HOST=$(cat .tinyb | jq '.host'| tr -d '"')
 curl -H "Authorization: Bearer $TOKEN" \
 -d "name=endpoints_token" \
 -d "scope=PIPES:READ:query_logs" \
+-d "scope=PIPES:READ:count_log" \
 -d "scope=PIPES:READ:get_values_channel" \
 -d "scope=PIPES:READ:get_values_project" \
 -d "scope=PIPES:READ:get_values_deployment" \
