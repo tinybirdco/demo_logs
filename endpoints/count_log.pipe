@@ -1,6 +1,7 @@
 DESCRIPTION >
 	Total sum of events
 
+TOKEN "read API endpoints" READ
 
 NODE endpoint_count_log
 SQL >
