@@ -62,6 +62,7 @@ def send_hfi(datasource,
     scheme = random.choices(['http','https'],k=events)
     status_code = random.choices([200,400,403,500],k=events)
     destination = random.choices(['http','https'],k=events)
+    body_message = random.choices(['Package Deployed','Loading File into database','Running Instance','Cleaning Memory Buffer'],k=events)
   
     nd = []
     
@@ -84,7 +85,7 @@ def send_hfi(datasource,
         'projectId':  projectId[i%events],
         'id': str(id_event),
         'deploymentId': deploymentId[i%events],
-        'message': (f"{logLevel[i%events]} RequestId: {requestId} Version: LATEST\n Init Duration: {initDuration} ms Duration: {duration} ms Memory Used: {memoryUsed} MB"),
+        'message': (f"{logLevel[i%events]}: {body_message[i%events]} RequestId: {requestId} Version: LATEST\n Init Duration: {initDuration} ms Duration: {duration} ms Memory Used: {memoryUsed} MB"),
         'logLevel': logLevel[i%events]
         }
         if(datasource == 'build_log'):

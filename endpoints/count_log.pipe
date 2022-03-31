@@ -1,0 +1,18 @@
+DESCRIPTION >
+	Total sum of events
+
+
+NODE endpoint_count_log
+SQL >
+
+    SELECT sum(total) as total
+    FROM
+    (
+      SELECT count() as total FROM build_log
+      UNION ALL
+      SELECT count() as total FROM lambda_log
+      UNION ALL
+      SELECT count() as total FROM rewrite_log
+    )
+
+
