@@ -1,13 +1,10 @@
 from re import I
 import string
-import faker
 import requests
 import json
 from datetime import datetime, timedelta
 import click
 import random
-from faker import Faker
-import uuid
 
 from requests_toolbelt import user_agent
 
@@ -24,13 +21,13 @@ def send_event(ds: str, token: str, messages: list):
   # print(r.text)
 
 @click.command()
-@click.option('--datasource', help ='the destination datasource', default='build_log')
-@click.option('--sample', help = 'number of messages simulated in each repetition', type=int, default=100)
-@click.option('--events', help = 'number of events per request. Sent as NDJSON in the body', type=int, default=87)
+@click.option('--datasource', help ='the destination datasource. Default = build_log', default='build_log')
+@click.option('--sample', help = 'number of messages simulated in each repetition. Default = 100', type=int, default=100)
+@click.option('--events', help = 'number of events per request. Sent as NDJSON in the body. Default = 50', type=int, default=50)
 @click.option('--repeat', type=int, default=1)
 @click.option('--silent', is_flag=True, default=False)
-@click.option('--d_from', help = 'used along d_to to simulate data from the past. d_from lets you select the number of days previous to today for starting the simulation', type=int, default=0)
-@click.option('--d_to', help = 'used along d_from to simulate data from the past. d_to lets you select the number of days previous to today for ending the simulation', type=int, default=0)
+@click.option('--d_from', help = 'used along d_to to simulate data from the past. d_from lets you select the number of days previous to today for starting the simulation. Default = 0', type=int, default=0)
+@click.option('--d_to', help = 'used along d_from to simulate data from the past. d_to lets you select the number of days previous to today for ending the simulation. Default = 0', type=int, default=0)
 def send_hfi(datasource,
              sample,
              events,
