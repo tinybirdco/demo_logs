@@ -1,0 +1,14 @@
+DESCRIPTION >
+	Retrieve distinct values for channel: "build" | "lambda" | "rewrite"
+
+
+NODE endpoint_get_values_channel
+SQL >
+
+      select 'build' as channel
+      union all
+      select 'lambda' as channel
+      union all
+      select 'rewrite' as channel
+
+

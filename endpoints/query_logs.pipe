@@ -1,89 +1,45 @@
-NODE node_query_build_logs
+DESCRIPTION >
+	Retrieves date and message from the log.
+It orders the response by the older ts and, by default, retrieves the first 100 results. Check page and page_size to modify the response size.
+
+You can use the rest of the parameters to filter the response:
+
+start_date and end_date: Can be passed together or just one of them
+channel: "build" | "lambda" | "rewrite"
+project: Project Id
+deployment: Deployment Id
+log_Level: "WARNING" | "DEBUG" | "ERROR"
+
+
+NODE endpoint_query_logs
 SQL >
 
     %
-        SELECT timestamp,message 
-          FROM build_log
-        WHERE 1
-                {% if defined(date_start) and defined(date_end) %}
-                    AND toDate(timestamp) BETWEEN toDate({{Date(date_start)}}) and toDate({{Date(date_end)}})
-                {% end %}
-                {% if defined(project) or defined(deployment) %}
-                    AND {{sql_and(
-                    projectId__in=Array(project, 'String', defined=False),
-                    deploymentId__in=Array(deployment, 'String', defined=False)
-                    )}}  
-                {% end %}
-                            {%if defined(text_search)%}
+    SELECT timestamp, message 
+    {% if not defined(channel) or channel == 'build' %}
+    FROM build_log
+    {% elif channel == 'lambda' %}
+    FROM lambda_log
+    {% elif channel == 'rewrite' %}
+    FROM rewrite_log
+    {% end %}
+    WHERE 1
+    {% if defined(date_start) and defined(date_end) %}
+    AND timestamp BETWEEN toDateTime({{String(date_start)}}) and toDateTime({{String(date_end)}})
+    {% end %}
+    {% if defined(project) and project != 'All' %}
+    AND projectId in {{Array(project, 'String', defined=False)}}
+    {% end %}
+    {% if defined(deployment) and deployment != 'All' %}
+    AND deploymentId in {{Array(deployment, 'String', defined=False)}}
+    {% end %}
+    {% if defined(log_level) and log_level != 'All' %}
+    AND logLevel in {{Array(log_level, 'String', defined=False)}}
+    {% end %}
+    {%if defined(text_search) and text_search != ''%}
     AND message like concat('%',{{String(text_search, description="text of the message")}},'%')
     {%end%}
-
-
-
-NODE node_query_lambda_logs
-SQL >
-
-    %
-        SELECT timestamp,message 
-          FROM lambda_log
-        WHERE 1
-                {% if defined(date_start) and defined(date_end) %}
-                    AND toDate(timestamp) BETWEEN toDate({{Date(date_start)}}) and toDate({{Date(date_end)}})
-                {% end %}
-                {% if defined(project) or defined(deployment) %}
-                    AND {{sql_and(
-                    projectId__in=Array(project, 'String', defined=False),
-                    deploymentId__in=Array(deployment, 'String', defined=False)
-                    )}}  
-                {% end %}
-                            {%if defined(text_search)%}
-    AND message like concat('%',{{String(text_search, description="text of the message")}},'%')
-    {%end%}
-
-
-
-NODE node_query_rewrite_logs
-SQL >
-
-    %
-        SELECT timestamp,message 
-          FROM rewrite_log
-        WHERE 1
-                {% if defined(date_start) and defined(date_end) %}
-                    AND toDate(timestamp) BETWEEN toDate({{Date(date_start)}}) and toDate({{Date(date_end)}})
-                {% end %}
-                {% if defined(project) or defined(deployment) %}
-                    AND {{sql_and(
-                    projectId__in=Array(project, 'String', defined=False),
-                    deploymentId__in=Array(deployment, 'String', defined=False)
-                    )}}  
-                {% end %}
-                {%if defined(text_search)%}
-    AND message like concat('%',{{String(text_search, description="text of the message")}},'%')
-    {%end%}
-
-
-
-NODE endpoint_query
-SQL >
-
-    %
-
-    SELECT timestamp,message
-      FROM
-    (
-      SELECT timestamp,message
-      FROM
-      {% if channel == 'build' %}
-        node_query_build_logs
-      {% elif channel == 'lambda' %}
-        node_query_lambda_logs
-      {% elif channel == 'rewrite' %}
-        node_query_rewrite_logs
-      {% else %}
-        node_query_build_logs  
-      {% end %}
-    )
+    ORDER BY timestamp DESC
     LIMIT {{Int32(page_size, 100)}}
     OFFSET {{Int32(page, 0) * Int32(page_size, 100)}}
 

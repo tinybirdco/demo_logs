@@ -45,11 +45,12 @@ def send_hfi(datasource,
    
   id_event = random.randint(0, 1000000000)
   build_id = random.randint(0, 1000000000)
-  
   for _ in range(repeat):
-
-    projectId = 'prj_' + ''.join(random.choices(string.ascii_letters + string.digits, k = 30))
-    deploymentId = 'dpl_' + ''.join(random.choices(string.ascii_letters + string.digits, k = 30))
+      
+    #projectId = 'prj_' + ''.join(random.choices(string.ascii_letters + string.digits, k = 30))
+    #deploymentId = 'dpl_' + ''.join(random.choices(string.ascii_letters + string.digits, k = 30))
+    projectId = random.choices(['prj_BDqTqm81F4l6rtC0zhTujXOsqk5igr','prj_7p28UEeoDR533iYE79FOpF0JQmsh2Q','prj_JrevsvR1WgGaICCMDSpOOvyR8gsHF7','prj_785sDMqcq9qjreGsnYinoKMOulAnGw','prj_17sfKwWvGkRwqeY8Wifh6hwtxDojJ4'],k=events)
+    deploymentId = random.choices(['dpl_UOZqbYsJvjbGiScsfAE43P2C92wu7C','dpl_doOhm4IGNFB7jMZOeIQi9FaHaELnfQ','dpl_TRsVuLI2StYcyXneoqx1KBneXDYsqy','dpl_wlwpJriCKrgSqCyXVjzTflx6CFnA9z','dpl_SVPY6RrsolCMQzSMdYGvl9KsPVmbeu','dpl_hKpVdorWlllc4tx3wwJw7lgktxxhwJ','dpl_qjdzP0Oe7q4StDtM4lG37Tfj5Dc1cr','dpl_HGb13aLJHpO4IqN1T6UIEcP12CEHTM','dpl_wWwHycmpZhjjPN78s5VBLYCLL3rJF2','dpl_1sGqOZwb9ksNnkk33jrMB7Mp4TKuSu'],k=events)
     logLevel = random.choices(['WARNING','DEBUG','ERROR'],k=events)
     entrypoint = random.choices(['package.json','downloading','python','docker'],k=events)
     http_method = random.choices(['GET','POST','PUT','DELETE','HEAD','OPTIONS'],k=events)
@@ -83,16 +84,15 @@ def send_hfi(datasource,
 
         message = {
         'timestamp': (datetime.utcnow() - timedelta(days=delta_days, seconds=delta_seconds)).isoformat() if (d_from != 0) else datetime.utcnow().isoformat(),
-        'projectId':  projectId,
+        'projectId':  projectId[i%events],
         'id': str(id_event),
-        'deploymentId': deploymentId,
+        'deploymentId': deploymentId[i%events],
         'message': (f"{logLevel[i%events]} RequestId: {requestId} Version: LATEST\n Init Duration: {initDuration} ms Duration: {duration} ms Memory Used: {memoryUsed} MB"),
         'logLevel': logLevel[i%events]
         }
         if(datasource == 'build_log'):
             message.update(
             {'buildId': str(build_id),
-            'deploymentId': deploymentId,
             'entrypoint': entrypoint[i%events]
             })
         if(datasource == 'lambda_log' or datasource == 'rewrite_log'):
@@ -120,10 +120,10 @@ def send_hfi(datasource,
             nd = []
         if not(silent):
             print(message) 
-        if ((i % (sample /20)) == 0):
-            deploymentId = 'dpl_' + ''.join((random.choice(string.ascii_letters) for x in range(30)))
-        if ((i % (sample /10)) == 0):
-            projectId = 'prj_' + ''.join(random.choices(string.ascii_letters + string.digits, k = 30))
+        #if ((i % (sample /12)) == 0):
+        #    deploymentId = 'dpl_' + ''.join((random.choice(string.ascii_letters) for x in range(30)))
+        #if ((i % (sample /7)) == 0):
+            #projectId = 'prj_' + ''.join(random.choices(string.ascii_letters + string.digits, k = 30))
     send_event(datasource, token, nd)
     nd = []
 

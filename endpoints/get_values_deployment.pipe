@@ -1,24 +1,34 @@
+DESCRIPTION >
+  Retrive distinct values for Project Id
+
+
+NODE get_distinct_values_deployment
+SQL >
+
+    %
+    SELECT distinct deploymentId
+      {% if channel == 'build' %}
+         FROM build_log
+      {% elif channel == 'lambda' %}
+         FROM lambda_log
+      {% elif channel == 'rewrite' %}
+         FROM rewrite_log  
+      {% else %}
+         FROM build_log  
+      {% end %}
+    WHERE 1
+    {% if defined(project) and project != 'All' %}
+    AND projectId in Array(project, 'String', defined=False)
+    {% end %}
+    ORDER BY deploymentId ASC
+
+
+
 NODE endpoint_get_values_deployment
 SQL >
 
-    SELECT distinct deploymentId
-    FROM
-    (
-      SELECT distinct deploymentId 
-        FROM build_log
-      UNION ALL
-      SELECT distinct deploymentId
-        FROM lambda_log
-      UNION ALL
-      SELECT distinct deploymentId
-        FROM rewrite_log  
-    )
-
-
-
-NODE get_values_deployment_1
-SQL >
-
-    SELECT count() FROM endpoint_get_values_deployment
+    SELECT 'All' as deploymentId
+    UNION ALL
+    SELECT * FROM get_distinct_values_deployment
 
 

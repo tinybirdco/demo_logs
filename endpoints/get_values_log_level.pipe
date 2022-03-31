@@ -1,0 +1,12 @@
+DESCRIPTION >
+	Retrive distinct values for Log Level: "WARNING" | "DEBUG" | "ERROR"
+
+
+NODE endpoint_get_values_log_level
+SQL >
+
+    SELECT 'All' as logLevel
+    UNION ALL
+    SELECT distinct(logLevel) FROM build_log
+
+
