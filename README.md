@@ -30,7 +30,7 @@ Go to your workspace, copy a token with admin rights and paste it. A new `.tinyb
 ├── datasources
 │   ├── build_log.datasource
 │   ├── lambda_log.datasource
-│   └── rewrite_log
+│   └── rewrite_log.datasource
 │     
 ├── endpoints
 │   ├── query_logs.pipe
