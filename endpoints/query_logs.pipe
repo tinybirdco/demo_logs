@@ -1,14 +1,19 @@
 DESCRIPTION >
 	Retrieves date and message from the log.
-It orders the response by the older ts and, by default, retrieves the first 100 results. Check page and page_size to modify the response size.
+    It orders the response by the older ts and, by default, retrieves the first 100 results. Check page and page_size to modify the response size.
 
-You can use the rest of the parameters to filter the response:
+    You can use the rest of the parameters to filter the response:
 
-start_date and end_date: Can be passed together or just one of them
-channel: "build" | "lambda" | "rewrite"
-project: Project Id
-deployment: Deployment Id
-log_Level: "WARNING" | "DEBUG" | "ERROR"
+    start_date and end_date: Can be passed together or just one of them
+    channel: "build" | "lambda" | "rewrite"
+    project: Project Id
+    deployment: Deployment Id
+    log_Level: "WARNING" | "DEBUG" | "ERROR"
+
+
+
+
+TOKEN "read API endpoints" READ
 
 
 NODE endpoint_query_logs

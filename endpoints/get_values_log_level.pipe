@@ -1,6 +1,7 @@
 DESCRIPTION >
 	Retrive distinct values for Log Level: "WARNING" | "DEBUG" | "ERROR"
 
+TOKEN "read API endpoints" READ
 
 NODE endpoint_get_values_log_level
 SQL >

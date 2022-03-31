@@ -1,6 +1,7 @@
 DESCRIPTION >
 	Retrive distinct values for Project Id
 
+TOKEN "read API endpoints" READ
 
 NODE get_distinct_values_project
 SQL >
