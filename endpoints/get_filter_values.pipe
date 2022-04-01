@@ -1,0 +1,110 @@
+DESCRIPTION >
+	Retrieve values for __UI filters__:
+- channel: "build" | "lambda" | "rewrite"
+- projectId
+- deploymentId
+- log_level: "WARNING" | "DEBUG" | "ERROR"
+
+usage: add a query param called _filter_ and pass "channels" | "projects" | "deployments" | "log_levels"
+
+TOKEN "read API endpoints" READ
+
+NODE channels
+DESCRIPTION >
+    Retrieve distinct values for channel: "build" | "lambda" | "rewrite"
+
+SQL >
+
+    SELECT 'build' AS values
+    UNION ALL
+    SELECT 'lambda' AS values
+    UNION ALL
+    SELECT 'rewrite' AS values
+
+
+
+NODE projects
+DESCRIPTION >
+    Retrive distinct values for Project Id
+
+SQL >
+
+    %
+          SELECT 'All' as values
+            UNION ALL
+          SELECT distinct projectId as values
+              {% if not defined(channel) or channel == 'build' %}
+              FROM build_log
+              {% elif channel == 'lambda' %}
+              FROM lambda_log
+              {% elif channel == 'rewrite' %}
+              FROM rewrite_log
+              {% end %}
+
+
+
+NODE deployments
+DESCRIPTION >
+    Retrive distinct values for Project Id
+
+SQL >
+
+    %
+          select 'All' values
+          union all
+        SELECT distinct deploymentId as values
+              {% if channel == 'build' %}
+                 FROM build_log
+              {% elif channel == 'lambda' %}
+                 FROM lambda_log
+              {% elif channel == 'rewrite' %}
+                 FROM rewrite_log  
+              {% else %}
+                 FROM build_log  
+              {% end %}
+            WHERE 1
+            {% if defined(project) and project != 'All' %}
+            AND projectId in Array(project, 'String', defined=False)
+            {% end %}
+            ORDER BY deploymentId ASC
+
+
+
+NODE log_levels
+DESCRIPTION >
+    Retrive distinct values for Log Level: "WARNING" | "DEBUG" | "ERROR"
+
+SQL >
+
+    SELECT 'All' AS values
+    UNION ALL
+    SELECT DISTINCT logLevel as values
+    FROM build_log
+
+
+
+NODE warn
+SQL >
+
+    SELECT 'please, specify the filter you want' as values
+
+
+
+NODE endpoint
+SQL >
+
+    %
+    SELECT values
+    {%if filter == 'channels'%}
+    from channels
+    {%elif filter == 'projects'%}
+    from projects
+    {%elif filter =='deployments'%}
+    from deployments
+    {%elif filter =='log_levels'%}
+    from log_levels
+    {%else%}
+    from warn
+    {%end%}
+
+
