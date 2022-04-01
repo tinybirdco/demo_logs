@@ -3,7 +3,7 @@ SCHEMA >
     `id` String `json:$.id`,
     `projectId` String `json:$.projectId`,
     `deploymentId` String `json:$.deploymentId`,
-    `timestamp` DateTime `json:$.timestamp`,
+    `timestamp` DateTime64(3) `json:$.timestamp`,
     `logLevel` String `json:$.logLevel`,
     `cacheId` String `json:$.cacheId`,
     `clientIp` String `json:$.clientIp`,

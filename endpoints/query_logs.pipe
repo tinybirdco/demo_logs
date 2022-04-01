@@ -30,7 +30,7 @@ SQL >
     {% end %}
     WHERE 1
     {% if defined(date_start) and defined(date_end) %}
-    AND timestamp BETWEEN toDateTime({{String(date_start)}}) and toDateTime({{String(date_end)}})
+    AND timestamp BETWEEN toDateTime64({{String(date_start)}},3) and toDateTime64({{String(date_end)}},3)
     {% end %}
     {% if defined(project) and project != 'All' %}
     AND projectId in {{Array(project, 'String', defined=False)}}
