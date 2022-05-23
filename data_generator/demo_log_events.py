@@ -8,6 +8,8 @@ import random
 
 from requests_toolbelt import user_agent
 
+tinyb = json.load(open('.tinyb', 'r'))
+
 def send_event(ds: str, token: str, messages: list):
   params = {
     'name': ds,
@@ -15,7 +17,7 @@ def send_event(ds: str, token: str, messages: list):
     'wait': 'false',
   }
   data = '\n'.join(json.dumps(m) for m in messages)
-  r = requests.post('https://api.tinybird.co/v0/events', params=params, data=data)
+  r = requests.post(tinyb['host'] + '/v0/events', params=params, data=data)
   # uncomment the following two lines in case you don't see your data in the datasource
   # print(r.status_code)
   # print(r.text)
