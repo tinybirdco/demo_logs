@@ -43,7 +43,7 @@ In the `/datasources` folder we have three Data Sources:
 - lambda_log: where we'll be sending lambda log events.
 - rewrite_log: where we'll be sending rewrite log events.
 
-And five .pipe files in the `/endpoints` folder:
+And three .pipe files in the `/endpoints` folder:
 
 - query_logs: Retrieve timestamp and message data every events filtered by channel, project_id, deployment_id and log_level.
 - count_log: Retrieve the number of rows in all the logs.
